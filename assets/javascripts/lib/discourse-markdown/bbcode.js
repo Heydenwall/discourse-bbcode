@@ -80,6 +80,39 @@ function setupMarkdownIt(md) {
     wrap: wrap("a", "href", (tagInfo) => "#" + tagInfo.attrs._default),
   });
 
+  /* heydenwall custom bbcode */
+  ruler.push('iframe',{
+    tag: 'dw',
+    replace(state, tagInfo, content) {
+      let height = '1000';
+      if (tagInfo.attrs._default) {
+       height = tagInfo.attrs._default;
+      }
+      let token = state.push('iframe_open', 'iframe', 1);
+      token.attrs = [['src',  "https://heydenwall.de/" + content + "?do=export_xhtml"], ['scrolling', 'no'], ['allowfullscreen', 'true'], ['width', '100%'], ['height', height + 'px']];
+      token = state.push('text', '', 0);
+      token.content = 'Your browser cannot display this content.';
+      token = state.push('iframe_close', 'iframe', -1);
+      return true;
+    },
+  });
+
+  ruler.push('bild',{
+    tag: 'bild',
+    replace(state, tagInfo, content) {
+      let alt = "";
+      if (tagInfo.attrs._default) {
+   	    alt = tagInfo.attrs._default;
+      }
+      let token = state.push('img_open', 'img', 1);
+      token.attrs = [['src',  "https://heydenwall.de/_media/" + content], ['alt', alt]];
+      token = state.push('img_close', 'img', -1);
+      return true;
+    },
+  });
+
+/* end heydenwall custom bbcode  */
+
   ["left", "right", "center"].forEach((dir) => {
     md.block.bbcode.ruler.push(dir, {
       tag: dir,
